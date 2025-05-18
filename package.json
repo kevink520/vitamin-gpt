@@ -1,0 +1,29 @@
+{
+  "name": "vitamin-gpt",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^0.1.13",
+    "@vercel/edge": "^1.2.1",
+    "ai": "^4.1.54",
+    "autoprefixer": "10.4.14",
+    "aws-sdk": "^2.1420.0",
+    "next": "^15.2.1",
+    "openai-edge": "^1.2.2",
+    "postcss": "8.4.27",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-ga4": "^2.1.0",
+    "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
+    "request-ip": "^3.3.0",
+    "tailwindcss": "3.3.3",
+    "uuid": "^9.0.0"
+  }
+}
