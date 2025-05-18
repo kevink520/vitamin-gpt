@@ -7,6 +7,7 @@ import ChatbotMessage from '@/components/ChatMessage'
 import UserMessage from '@/components/UserMessage'
 import ReactGA from 'react-ga4'
 import Footer from '@/components/Footer'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 ReactGA.initialize(process.env.NEXT_PUBLIC_GA_ID)
 
@@ -84,6 +85,7 @@ export default function Chat () {
           <button type='submit' className='w-9 p-2'>
             <AiOutlineSend size={20} color='#1e3a8a' />
           </button>
+          <Turnstile sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
         </div>
       </form>
       <Footer />
