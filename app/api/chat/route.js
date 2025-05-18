@@ -1,6 +1,7 @@
 import { streamText } from 'ai'
 //import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
-import { openai } from '@ai-sdk/openai'
+//import { openai } from '@ai-sdk/openai'
+import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import requestIp from 'request-ip'
 import { saveDataToVitaminGPTDynamoDB } from '@/utils/functions'
 
@@ -19,6 +20,14 @@ const openai = new OpenAI({
   },
 });*/
 
+const openrouter = createOpenRouter({
+  apiKey: OPENROUTER_API_KEY,
+  defaultHeaders: {
+    'HTTP-Referer': 'https://vitamin-gpt.vercel.app',
+    'X-Title': 'Vitamin GPT'
+  }
+})
+
 export async function POST (req) {
   try {
     const clientIpAddress = requestIp.getClientIp(req) || 'Unknown'
@@ -33,13 +42,10 @@ export async function POST (req) {
     }).chatModel('google/gemini-2.5-pro-exp-03-25:free:online')*/
 
     const result = streamText({
-      model: openai.responses('qwen/qwen3-235b-a22b:free:online'),
+      model: openrouter.chat('qwen/qwen3-235b-a22b:free:online'),
       system: 'You are a helpful assistant.',
       messages,
-      apiKey: OPENROUTER_API_KEY
     })
-
-    console.log(result)
 
     return result.toDataStreamResponse()
   } catch (error) {
