@@ -39,6 +39,8 @@ export async function POST (req) {
       apiKey: OPENROUTER_API_KEY
     })
 
+    console.log(result)
+
     return result.toDataStreamResponse()
   } catch (error) {
     console.error('Error:', error)
