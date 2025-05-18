@@ -1,8 +1,9 @@
+import { headers } from 'next/headers'
 import { streamText } from 'ai'
 //import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 //import { openai } from '@ai-sdk/openai'
 import { createOpenAI } from '@ai-sdk/openai'
-import requestIp from 'request-ip'
+//import requestIp from 'request-ip'
 import { saveDataToVitaminGPTDynamoDB } from '@/utils/functions'
 
 // Enable edge runtime for better streaming performance
@@ -22,7 +23,8 @@ const openai = createOpenAI({
 
 export async function POST (req) {
   try {
-    const clientIpAddress = requestIp.getClientIp(req) || 'Unknown'
+    //const clientIpAddress = requestIp.getClientIp(req) || 'Unknown'
+    const clientIpAddress = headers().get('x-forwarded-for')?.split(',')?.[0] ?? 'Unknown'
     const { messages } = await req.json()
     const messagesToSave = messages?.slice(-1) ?? []
     await saveDataToVitaminGPTDynamoDB(messagesToSave, clientIpAddress)
