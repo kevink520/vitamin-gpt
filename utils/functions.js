@@ -1,5 +1,7 @@
 import AWS from 'aws-sdk'
 import { v4 as uuidv4 } from 'uuid'
+import { headers } from 'next/headers'
+
 AWS.config.update({ region: 'us-east-1' })
 const dynamoDB = new AWS.DynamoDB({
   apiVersion: '2012-08-10',
@@ -146,4 +148,23 @@ export async function saveDataToVitaminGPTDynamoDB (messages = [], clientIpAddre
 
   const params = { RequestItems: { 'vitamin-gpt': vitaminGPTChatMessages } }
   return dynamoDB2.batchWriteItem(params).promise()
+}
+
+export function getClientIp() {
+  const h = headers()
+
+  // 1. Primary – standard header
+  let ip =
+    h.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+
+    // 2. Vercel‑specific duplicate
+    h.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
+
+    // 3. Nginx‑style header
+    h.get('x-real-ip')?.trim() ||
+
+    // 4. Fallback – local dev loopback
+    '127.0.0.1'
+
+  return ip
 }
