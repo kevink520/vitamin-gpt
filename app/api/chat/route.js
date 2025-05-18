@@ -1,7 +1,7 @@
 import { streamText } from 'ai'
 //import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 //import { openai } from '@ai-sdk/openai'
-import { createOpenRouter } from '@openrouter/ai-sdk-provider'
+import { createOpenAI } from '@ai-sdk/openai'
 import requestIp from 'request-ip'
 import { saveDataToVitaminGPTDynamoDB } from '@/utils/functions'
 
@@ -9,18 +9,10 @@ import { saveDataToVitaminGPTDynamoDB } from '@/utils/functions'
 //export const runtime = 'edge'
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY
-/*const OPENROUTER_URL = 'https://openrouter.ai/api/v1'
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1'
 
-const openai = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: OPENROUTER_API_KEY,
-  defaultHeaders: {
-    "HTTP-Referer": "https://vitamin-gpt.vercel.app",
-    "X-Title": "Vitamin GPT"
-  },
-});*/
-
-const openrouter = createOpenRouter({
+const openai = createOpenAI({
+  baseURL: OPENROUTER_URL,
   apiKey: OPENROUTER_API_KEY,
   defaultHeaders: {
     'HTTP-Referer': 'https://vitamin-gpt.vercel.app',
@@ -42,7 +34,7 @@ export async function POST (req) {
     }).chatModel('google/gemini-2.5-pro-exp-03-25:free:online')*/
 
     const result = streamText({
-      model: openrouter.chat('qwen/qwen3-235b-a22b:free:online'),
+      model: openai.chat('qwen/qwen3-235b-a22b:free:online'),
       system: 'You are a helpful assistant.',
       messages,
     })
