@@ -23,7 +23,7 @@ export default function Chat () {
     initialMessages: [
       {
         role: 'assistant',
-        content: 'Hello, I am a helpful AI chatbot powered by a latest thinking model. I can also search the web. Ask me anything.'
+        content: 'Hello, I am a helpful AI chatbot. I can also search the web. Ask me anything.'
       }
     ],
     onFinish: async (msg) => {
