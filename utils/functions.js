@@ -1,6 +1,5 @@
 import AWS from 'aws-sdk'
 import { v4 as uuidv4 } from 'uuid'
-import { headers } from 'next/headers'
 
 AWS.config.update({ region: 'us-east-1' })
 const dynamoDB = new AWS.DynamoDB({
@@ -79,6 +78,10 @@ export async function getPointTextData (pointId) {
 }
 
 export async function saveDataToDynamoDB (messages = [], clientIpAddress = 'Unknown') {
+  if (!process.env.AWS_TRDOCTOR_ACCESS_KEY || !process.env.AWS_TRDOCTOR_SECRET_ACCESS_KEY) {
+    return
+  }
+
   const qaId = uuidv4()
   const trdoctorChatMessages = []
   for (const message of messages) {
@@ -117,6 +120,10 @@ export async function saveDataToDynamoDB (messages = [], clientIpAddress = 'Unkn
 }
 
 export async function saveDataToVitaminGPTDynamoDB (messages = [], clientIpAddress = 'Unknown') {
+  if (!process.env.AWS_VITAMIN_GPT_ACCESS_KEY || !process.env.AWS_VITAMIN_GPT_SECRET_ACCESS_KEY) {
+    return
+  }
+
   const vitaminGPTChatMessages = []
   for (const message of messages) {
     vitaminGPTChatMessages.push({
@@ -150,18 +157,23 @@ export async function saveDataToVitaminGPTDynamoDB (messages = [], clientIpAddre
   return dynamoDB2.batchWriteItem(params).promise()
 }
 
-export function getClientIp() {
-  const h = headers()
+export function getClientIp (reqOrHeaders) {
+  const h =
+    reqOrHeaders?.headers instanceof Headers
+      ? reqOrHeaders.headers
+      : reqOrHeaders instanceof Headers
+        ? reqOrHeaders
+        : null
 
   // 1. Primary – standard header
   let ip =
-    h.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    h?.get('x-forwarded-for')?.split(',')[0]?.trim() ||
 
     // 2. Vercel‑specific duplicate
-    h.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
+    h?.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ||
 
     // 3. Nginx‑style header
-    h.get('x-real-ip')?.trim() ||
+    h?.get('x-real-ip')?.trim() ||
 
     // 4. Fallback – local dev loopback
     '127.0.0.1'

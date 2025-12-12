@@ -1,13 +1,14 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, Fragment } from 'react'
 import { useChat } from 'ai/react'
 import { AiOutlineSend } from 'react-icons/ai'
-import ChatbotMessage from '@/components/ChatMessage'
+import ChatbotMessage from '@/components/ChatbotMessage'
 import UserMessage from '@/components/UserMessage'
 import ReactGA from 'react-ga4'
 import Footer from '@/components/Footer'
 import { Turnstile } from '@marsidev/react-turnstile'
+import ThinkingDots from '@/components/ThinkingDots'
 
 ReactGA.initialize(process.env.NEXT_PUBLIC_GA_ID)
 
@@ -17,13 +18,14 @@ export default function Chat () {
   const {
     messages,
     input,
+    isLoading,
     handleInputChange,
     handleSubmit
   } = useChat({
     initialMessages: [
       {
         role: 'assistant',
-        content: 'Hello, I am a helpful AI chatbot. I can also search the web. Ask me anything.'
+        content: 'Hello, I am a helpful AI chatbot powered by a latest thinking AI model. I can also search the web. Ask me anything.'
       }
     ],
     onFinish: async (msg) => {
@@ -45,7 +47,7 @@ export default function Chat () {
 
   useEffect(() => {
     inputContainerRef.current.scrollIntoView({ behavior: 'smooth' })
-  }, [messages]);
+  }, [messages])
 
   return (
     <div className='w-full max-w-4xl py-12 mx-auto flex flex-col justify-between gap-8 min-h-screen'>
@@ -66,10 +68,15 @@ export default function Chat () {
           {messages.map((msg, i) =>
             msg.role === 'assistant'
               ? (
-                <ChatbotMessage key={i} message={msg.content} />
-                )
-              : (
-                <UserMessage key={i} message={msg.content} />
+                <ChatbotMessage
+                  key={i} 
+                  message={msg.content} 
+                />
+              ) : (
+                <Fragment key={i}>
+                  <UserMessage message={msg.content} />
+                  {isLoading && i === messages.length - 1 && <ThinkingDots />}
+                </Fragment>
                 )
           )}
         </div>

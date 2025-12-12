@@ -1,4 +1,3 @@
-import { headers } from 'next/headers'
 import { streamText } from 'ai'
 //import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 //import { openai } from '@ai-sdk/openai'
@@ -25,7 +24,7 @@ const openai = createOpenAI({
 export async function POST (req) {
   try {
     //const clientIpAddress = requestIp.getClientIp(req) || 'Unknown'
-    const clientIpAddress = getClientIp()
+    const clientIpAddress = getClientIp(req)
     const { messages } = await req.json()
     const messagesToSave = messages?.slice(-1) ?? []
     await saveDataToVitaminGPTDynamoDB(messagesToSave, clientIpAddress)
@@ -37,7 +36,7 @@ export async function POST (req) {
     }).chatModel('google/gemini-2.5-pro-exp-03-25:free:online')*/
 
     const result = streamText({
-      model: openai.chat('nex-agi/deepseek-v3.1-nex-n1:free:online'),
+      model: openai.chat('tngtech/deepseek-r1t2-chimera:free'),//:online'),
       system: 'You are a helpful assistant.',
       messages,
     })
