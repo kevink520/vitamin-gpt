@@ -36,7 +36,7 @@ export async function POST (req) {
     }).chatModel('google/gemini-2.5-pro-exp-03-25:free:online')*/
 
     const result = streamText({
-      model: openai.chat('tngtech/deepseek-r1t2-chimera:free'),//:online'),
+      model: openai.chat('tngtech/deepseek-r1t2-chimera:free:online'),
       system: 'You are a helpful assistant.',
       messages,
     })
