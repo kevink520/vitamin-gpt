@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+/*import { NextResponse } from 'next/server'
 import {
   Configuration,
   OpenAIApi
@@ -53,3 +53,4 @@ export async function POST (req) {
     return NextResponse.json({ error: 'An error occurred' }, { status: 500 })
   }
 }
+*/

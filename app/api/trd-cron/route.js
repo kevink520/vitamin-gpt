@@ -1,4 +1,4 @@
-export async function POST (req) {
+/*export async function POST (req) {
   try {
     const res = await fetch({
       method: 'GET',
@@ -12,3 +12,4 @@ export async function POST (req) {
     return NextResponse.json({ error: 'An error occurred' }, { status: 500 })
   }
 }
+*/

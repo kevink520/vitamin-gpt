@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+/*import { NextResponse } from 'next/server'
 import requestIp from 'request-ip'
 import { saveDataToDynamoDB } from '@/utils/functions'
 
@@ -26,3 +26,4 @@ export async function OPTIONS () {
     }
   })
 }
+*/
