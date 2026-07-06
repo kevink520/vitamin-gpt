@@ -37,7 +37,7 @@ export async function POST (req) {
 
     const result = streamText({
       //model: openai.chat('tngtech/deepseek-r1t2-chimera:free:online'),
-      model: openai.chat('z-ai/glm-5:online'),
+      model: openai.chat('z-ai/glm-5.2:online'),
       system: 'You are a helpful assistant.',
       messages,
     })
