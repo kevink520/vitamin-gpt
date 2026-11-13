@@ -27,20 +27,7 @@ export default function Chat () {
         role: 'assistant',
         content: 'Hello, I am a helpful AI chatbot'/* powered by GLM-5.3, a state-of-the-art open-weights, general-purpose AI model*/ + '. I can also search the web. Ask me anything.'// a latest thinking AI model. I can also search the web. Ask me anything.'
       }
-    ],
-    onFinish: async (msg) => {
-      if (msg.content) {
-        await fetch('https://vitamin-gpt.vercel.app/api/chat2', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            messages: [msg]
-          })
-        })
-      }
-    }
+    ]
   })
 
   useEffect(() => inputRef.current.focus(), [])

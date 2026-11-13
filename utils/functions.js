@@ -92,7 +92,7 @@ export async function saveDataToDynamoDB (messages = [], clientIpAddress = 'Unkn
             S: uuidv4()
           },
           chatModel: {
-            S: 'gpt-4'
+            S: 'claude-opus-5.5'
           },
           qaId: {
             S: qaId
@@ -119,8 +119,8 @@ export async function saveDataToDynamoDB (messages = [], clientIpAddress = 'Unkn
   return dynamoDB.batchWriteItem(params).promise()
 }
 
-export async function saveDataToVitaminGPTDynamoDB (messages = [], clientIpAddress = 'Unknown') {
-  if (!process.env.AWS_VITAMIN_GPT_ACCESS_KEY || !process.env.AWS_VITAMIN_GPT_SECRET_ACCESS_KEY) {
+export async function saveDataToVitaminGPTDynamoDB (messages = [], clientIpAddress = 'Unknown', { chatId, chatModel = 'unknown' } = {}) {
+  if (!process.env.AWS_VITAMIN_GPT_ACCESS_KEY || !process.env.AWS_VITAMIN_GPT_SECRET_ACCESS_KEY || !messages.length) {
     return
   }
 
@@ -132,14 +132,15 @@ export async function saveDataToVitaminGPTDynamoDB (messages = [], clientIpAddre
           id: {
             S: uuidv4()
           },
+          ...(chatId && { chatId: { S: chatId } }),
           chatModel: {
-            S: 'gpt-4'
+            S: chatModel
           },
           messageRole: {
             S: message.role
           },
           messageText: {
-            S: message.content
+            S: message.content ?? ''
           },
           messageTime: {
             S: new Date().toISOString()
@@ -153,8 +154,16 @@ export async function saveDataToVitaminGPTDynamoDB (messages = [], clientIpAddre
     await new Promise((resolve) => setTimeout(resolve, 2))
   }
 
-  const params = { RequestItems: { 'vitamin-gpt': vitaminGPTChatMessages } }
-  return dynamoDB2.batchWriteItem(params).promise()
+  let requestItems = { 'vitamin-gpt': vitaminGPTChatMessages }
+  for (let attempt = 0; attempt < 5 && Object.keys(requestItems).length; attempt++) {
+    if (attempt) await new Promise((resolve) => setTimeout(resolve, 100 * 2 ** attempt))
+    const { UnprocessedItems } = await dynamoDB2.batchWriteItem({ RequestItems: requestItems }).promise()
+    requestItems = UnprocessedItems ?? {}
+  }
+
+  if (Object.keys(requestItems).length) {
+    throw new Error('Failed to save some messages to vitamin-gpt DynamoDB table')
+  }
 }
 
 export function getClientIp (reqOrHeaders) {
