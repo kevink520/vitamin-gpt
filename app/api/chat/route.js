@@ -54,8 +54,9 @@ export async function POST (req) {
             console.warn('Assistant response was empty; nothing saved', { chatId })
             return
           }
-          await saveDataToVitaminGPTDynamoDB([{ role: 'assistant', content: text }], clientIpAddress, saveOptions)
-          console.log('Saved assistant message', { chatId, length: text.length })
+          console.log('Saving assistant message', { chatId, length: text.length })
+          const saved = await saveDataToVitaminGPTDynamoDB([{ role: 'assistant', content: text }], clientIpAddress, saveOptions)
+          if (saved) console.log('Saved assistant message', { chatId })
         } catch (error) {
           console.error('Error saving assistant message:', error)
         } finally {

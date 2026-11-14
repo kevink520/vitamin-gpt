@@ -120,9 +120,11 @@ export async function saveDataToDynamoDB (messages = [], clientIpAddress = 'Unkn
 }
 
 export async function saveDataToVitaminGPTDynamoDB (messages = [], clientIpAddress = 'Unknown', { chatId, chatModel = 'unknown' } = {}) {
-  if (!process.env.AWS_VITAMIN_GPT_ACCESS_KEY || !process.env.AWS_VITAMIN_GPT_SECRET_ACCESS_KEY || !messages.length) {
-    return
+  if (!process.env.AWS_VITAMIN_GPT_ACCESS_KEY || !process.env.AWS_VITAMIN_GPT_SECRET_ACCESS_KEY) {
+    console.warn('AWS_VITAMIN_GPT credentials missing; message not saved')
+    return false
   }
+  if (!messages.length) return false
 
   const vitaminGPTChatMessages = []
   for (const message of messages) {
@@ -164,6 +166,7 @@ export async function saveDataToVitaminGPTDynamoDB (messages = [], clientIpAddre
   if (Object.keys(requestItems).length) {
     throw new Error('Failed to save some messages to vitamin-gpt DynamoDB table')
   }
+  return true
 }
 
 export function getClientIp (reqOrHeaders) {
