@@ -1,4 +1,5 @@
 import { streamText } from 'ai'
+import { after } from 'next/server'
 //import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 //import { openai } from '@ai-sdk/openai'
 import { createOpenAI } from '@ai-sdk/openai'
@@ -38,6 +39,9 @@ export async function POST (req) {
       apiKey: OPENROUTER_API_KEY
     }).chatModel('google/gemini-2.5-pro-exp-03-25:free:online')*/
 
+    let resolveSaved
+    const assistantSaved = new Promise((resolve) => { resolveSaved = resolve })
+
     const result = streamText({
       //model: openai.chat('tngtech/deepseek-r1t2-chimera:free:online'),
       //model: openai.chat('z-ai/glm-5.3:online'),
@@ -45,13 +49,24 @@ export async function POST (req) {
       system: 'You are a helpful assistant.',
       messages,
       onFinish: async ({ text }) => {
-        if (!text) return
-        await saveDataToVitaminGPTDynamoDB([{ role: 'assistant', content: text }], clientIpAddress, saveOptions)
-          .catch((error) => console.error('Error saving assistant message:', error))
+        try {
+          if (!text) return
+          await saveDataToVitaminGPTDynamoDB([{ role: 'assistant', content: text }], clientIpAddress, saveOptions)
+            .catch((error) => console.error('Error saving assistant message:', error))
+        } finally {
+          resolveSaved()
+        }
+      },
+      onError: ({ error }) => {
+        console.error('Stream error:', error)
+        resolveSaved()
       }
     })
 
+    // Keep generating even if the client disconnects
     result.consumeStream()
+    // Keep the function alive until the assistant message is saved
+    after(() => assistantSaved)
 
     return result.toDataStreamResponse()
   } catch (error) {
