@@ -1,4 +1,4 @@
-import { streamText } from 'ai'
+import { streamText, createDataStreamResponse } from 'ai'
 import { after } from 'next/server'
 //import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 //import { openai } from '@ai-sdk/openai'
@@ -50,9 +50,14 @@ export async function POST (req) {
       messages,
       onFinish: async ({ text }) => {
         try {
-          if (!text) return
+          if (!text) {
+            console.warn('Assistant response was empty; nothing saved', { chatId })
+            return
+          }
           await saveDataToVitaminGPTDynamoDB([{ role: 'assistant', content: text }], clientIpAddress, saveOptions)
-            .catch((error) => console.error('Error saving assistant message:', error))
+          console.log('Saved assistant message', { chatId, length: text.length })
+        } catch (error) {
+          console.error('Error saving assistant message:', error)
         } finally {
           resolveSaved()
         }
@@ -65,10 +70,21 @@ export async function POST (req) {
 
     // Keep generating even if the client disconnects
     result.consumeStream()
-    // Keep the function alive until the assistant message is saved
+    // Backup: keep the function alive if the client disconnects mid-stream
     after(() => assistantSaved)
 
-    return result.toDataStreamResponse()
+    // Hold the response open until the assistant message is saved, so the
+    // function can't be frozen between the last chunk and the DynamoDB write
+    return createDataStreamResponse({
+      execute: async (dataStream) => {
+        result.mergeIntoDataStream(dataStream)
+        await assistantSaved
+      },
+      onError: (error) => {
+        console.error('Data stream error:', error)
+        return 'An error occurred.'
+      }
+    })
   } catch (error) {
     console.error('Error:', error)
     return new Response(JSON.stringify({ error: 'An error occurred' }), {
